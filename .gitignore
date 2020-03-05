@@ -3,3 +3,4 @@ __pycache__/
 media_root
 static_root
 env
+*.DS_Store
