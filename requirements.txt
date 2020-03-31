@@ -20,3 +20,6 @@ requests-oauthlib==1.2.0
 sqlparse==0.2.4
 stripe==2.27.0
 urllib3==1.24.2
+graphviz==0.13.2
+pydotplus==2.0.2
+django-extensions==2.2.9
