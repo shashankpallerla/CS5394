@@ -1,5 +1,5 @@
 from django.test import TestCase
-from core.models import Item,UserProfile,OrderItem
+from core.models import Item,UserProfile,OrderItem,Address
 from django.db import models
 from django.conf import settings
 from unittest.mock import patch
@@ -64,3 +64,24 @@ class OrderItemTestCase(TestCase):
     
     def testGetFinalPrice(self):
         self.assertEqual(self.obj.get_final_price(),2000.00)
+
+
+class AddressTestCase(TestCase):
+
+    def setUp(self):
+        self.obj = Address(street_address="800 N LBJ Drive",apartment_address="215",country="US",zip="78666",address_type="S") 
+
+    def testStreetAddress(self):
+        self.assertEqual(self.obj.street_address,"800 N LBJ Drive")
+
+    def testApartmentAddress(self):
+        self.assertEqual(self.obj.apartment_address,"215")
+
+    def testCountry(self):
+        self.assertEqual(self.obj.country,"US")
+    
+    def testZip(self):
+        self.assertEqual(self.obj.zip,"78666")
+    
+    def testType(self):
+        self.assertEqual(self.obj.address_type,"S")
