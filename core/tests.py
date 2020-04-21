@@ -1,5 +1,5 @@
 from django.test import TestCase
-from core.models import Item,UserProfile,OrderItem,Address
+from core.models import Item,UserProfile,OrderItem,Address,Payment
 from django.db import models
 from django.conf import settings
 from unittest.mock import patch
@@ -85,3 +85,14 @@ class AddressTestCase(TestCase):
     
     def testType(self):
         self.assertEqual(self.obj.address_type,"S")
+
+class PaymentTestCase(TestCase):
+
+    def setUp(self):
+        self.obj = Payment(stripe_charge_id="123123123",amount="1500") 
+
+    def testStripeId(self):
+        self.assertEqual(self.obj.stripe_charge_id,"123123123")
+    
+    def testType(self):
+        self.assertEqual(self.obj.amount,"1500")
