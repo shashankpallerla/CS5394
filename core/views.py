@@ -10,6 +10,10 @@ from django.utils import timezone
 from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm
 from .models import Item, OrderItem, UserProfile
 from .models import Order, Address, Payment, Coupon, Refund
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
+from slugify import slugify
 
 import random
 import string
@@ -347,7 +351,7 @@ class PaymentView(View):
 
 class HomeView(ListView):
     model = Item
-    paginate_by = 10
+    paginate_by = 8
     template_name = "home.html"
 
 
@@ -505,6 +509,26 @@ class orderHistoryView(View):
                 messages.info(self.request, "You do not have an active order")
                 return redirect("core:checkout")
 
+class RecommendationView(View):
+    def get(self, *args, **kwargs):
+        # categoriesList = ['S','SW','OW']
+        # labelList = ['P','S','D']
+        # ds = pd.read_csv("/Users/Shashank/Documents/CS5394/core/sample-data.csv")
+
+        # for index, row in ds.iterrows():
+        #     searchId = row.id
+        #     name = row.description[:row.description.find('-')]
+        #     description = row.description[row.description.find('-'):]
+        #     slug = slugify(name)
+        #     newItem = Item(idSearch=searchId,title=name,price=float(random.randint(100,1000)),category=random.choice(categoriesList),label=random.choice(labelList),slug=slug,image="noimage.png",description=description)
+        #     newItem.save()
+        
+        context = {
+            'orders': []
+        }
+        # print("test")
+        return render(self.request, "order_history.html", context)
+
 class RequestRefundView(View):
     def get(self, *args, **kwargs):
         form = RefundForm()
@@ -538,3 +562,4 @@ class RequestRefundView(View):
             except ObjectDoesNotExist:
                 messages.info(self.request, "This order does not exist.")
                 return redirect("core:request-refund")
+
