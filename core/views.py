@@ -372,6 +372,49 @@ class ItemDetailView(DetailView):
     model = Item
     template_name = "product.html"
 
+    # Just reads the results out of the dictionary.
+    def recommend(self,item_id, num):
+        productRepo = []
+        AllProducts = Item.objects.all()
+
+        for p in AllProducts:
+            productRepo.append([p.idSearch,p.title,p.description])
+
+        ds = pd.DataFrame(productRepo, columns = ['id','name','description'])
+            
+        tf = TfidfVectorizer(analyzer='word', ngram_range=(1, 3), min_df=0, stop_words='english')
+        tfidf_matrix = tf.fit_transform(ds['description'])
+        cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+        results = {}
+        resultWithDistance = {}
+        
+        for idx, row in ds.iterrows():
+            similar_indices = cosine_similarities[idx].argsort()[:-100:-1]
+            similarItemsWithDistance = [(cosine_similarities[idx][i], ds['id'][i]) for i in similar_indices]
+            similar_items = [ds['id'][i] for i in similar_indices]
+            results[row['id']] = similar_items[1:]
+            resultWithDistance[row['id']] = similarItemsWithDistance[1:]
+
+        # To print the distance along with the id
+        # print(resultWithDistance[item_id][:num])
+
+        return results[item_id][:num]
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        recommendListIds = self.recommend(context['object'].idSearch,4)
+        recommendedObjects = []
+        for id in recommendListIds:
+            recommendedObjects.append(Item.objects.get(idSearch=id))
+
+        # Add in a QuerySet of all the books
+        context['object_list'] = recommendedObjects
+
+        return context
+
 
 @login_required
 def add_to_cart(request, slug):
