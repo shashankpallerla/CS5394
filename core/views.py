@@ -554,6 +554,10 @@ class orderHistoryView(View):
 
 class RecommendationView(View):
     def get(self, *args, **kwargs):
+
+        # # data = Item.objects.filter(slug="baggies-shorts")
+        # # print(data)
+    
         # categoriesList = ['S','SW','OW']
         # labelList = ['P','S','D']
         # ds = pd.read_csv("/Users/Shashank/Documents/CS5394/core/sample-data.csv")
@@ -562,7 +566,7 @@ class RecommendationView(View):
         #     searchId = row.id
         #     name = row.description[:row.description.find('-')]
         #     description = row.description[row.description.find('-'):]
-        #     slug = slugify(name)
+        #     slug = slugify(name+str(random.randint(1,1000)))
         #     newItem = Item(idSearch=searchId,title=name,price=float(random.randint(100,1000)),category=random.choice(categoriesList),label=random.choice(labelList),slug=slug,image="noimage.png",description=description)
         #     newItem.save()
         
@@ -571,6 +575,20 @@ class RecommendationView(View):
         }
         # print("test")
         return render(self.request, "order_history.html", context)
+
+class SearchView(ListView):
+    model = Item
+    paginate_by = 8
+    template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)    
+
+        # Add in a QuerySet of all the books
+        context['object_list'] = Item.objects.filter(description__contains=self.request.GET.get('keyword'))
+
+        return context
 
 class RequestRefundView(View):
     def get(self, *args, **kwargs):
