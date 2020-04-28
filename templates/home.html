@@ -21,19 +21,20 @@
 
           <!-- Links -->
           <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">All
+            <li class="nav-item {% if not request.GET.c %} {{ 'active' }} {% endif %}">
+              <a class="nav-link" href="/">
+                All
                 <span class="sr-only">(current)</span>
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Shirts</a>
+            <li class="nav-item {% if request.GET.c == 'S' %} {{ 'active' }} {% endif %}">
+              <a class="nav-link" href="/category/?c=S">Shirts</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Sport wears</a>
+            <li class="nav-item {% if request.GET.c == 'SW' %} {{ 'active' }} {% endif %}">
+              <a class="nav-link" href="/category/?c=SW">Sport wears</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Outwears</a>
+            <li class="nav-item {% if request.GET.c == 'OW' %} {{ 'active' }} {% endif %}">
+              <a class="nav-link" href="/category/?c=OW">Outwears</a>
             </li>
 
           </ul>
