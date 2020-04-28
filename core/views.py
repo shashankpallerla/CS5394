@@ -10,6 +10,10 @@ from django.utils import timezone
 from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm
 from .models import Item, OrderItem, UserProfile
 from .models import Order, Address, Payment, Coupon, Refund
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
+from slugify import slugify
 
 import random
 import string
@@ -347,7 +351,7 @@ class PaymentView(View):
 
 class HomeView(ListView):
     model = Item
-    paginate_by = 10
+    paginate_by = 8
     template_name = "home.html"
 
 
@@ -367,6 +371,49 @@ class OrderSummaryView(LoginRequiredMixin, View):
 class ItemDetailView(DetailView):
     model = Item
     template_name = "product.html"
+
+    # Just reads the results out of the dictionary.
+    def recommend(self,item_id, num):
+        productRepo = []
+        AllProducts = Item.objects.all()
+
+        for p in AllProducts:
+            productRepo.append([p.idSearch,p.title,p.description])
+
+        ds = pd.DataFrame(productRepo, columns = ['id','name','description'])
+            
+        tf = TfidfVectorizer(analyzer='word', ngram_range=(1, 3), min_df=0, stop_words='english')
+        tfidf_matrix = tf.fit_transform(ds['description'])
+        cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+        results = {}
+        resultWithDistance = {}
+        
+        for idx, row in ds.iterrows():
+            similar_indices = cosine_similarities[idx].argsort()[:-100:-1]
+            similarItemsWithDistance = [(cosine_similarities[idx][i], ds['id'][i]) for i in similar_indices]
+            similar_items = [ds['id'][i] for i in similar_indices]
+            results[row['id']] = similar_items[1:]
+            resultWithDistance[row['id']] = similarItemsWithDistance[1:]
+
+        # To print the distance along with the id
+        # print(resultWithDistance[item_id][:num])
+
+        return results[item_id][:num]
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        recommendListIds = self.recommend(context['object'].idSearch,4)
+        recommendedObjects = []
+        for id in recommendListIds:
+            recommendedObjects.append(Item.objects.get(idSearch=id))
+
+        # Add in a QuerySet of all the books
+        context['object_list'] = recommendedObjects
+
+        return context
 
 
 @login_required
@@ -505,6 +552,26 @@ class orderHistoryView(View):
                 messages.info(self.request, "You do not have an active order")
                 return redirect("core:checkout")
 
+class RecommendationView(View):
+    def get(self, *args, **kwargs):
+        # categoriesList = ['S','SW','OW']
+        # labelList = ['P','S','D']
+        # ds = pd.read_csv("/Users/Shashank/Documents/CS5394/core/sample-data.csv")
+
+        # for index, row in ds.iterrows():
+        #     searchId = row.id
+        #     name = row.description[:row.description.find('-')]
+        #     description = row.description[row.description.find('-'):]
+        #     slug = slugify(name)
+        #     newItem = Item(idSearch=searchId,title=name,price=float(random.randint(100,1000)),category=random.choice(categoriesList),label=random.choice(labelList),slug=slug,image="noimage.png",description=description)
+        #     newItem.save()
+        
+        context = {
+            'orders': []
+        }
+        # print("test")
+        return render(self.request, "order_history.html", context)
+
 class RequestRefundView(View):
     def get(self, *args, **kwargs):
         form = RefundForm()
@@ -538,3 +605,4 @@ class RequestRefundView(View):
             except ObjectDoesNotExist:
                 messages.info(self.request, "This order does not exist.")
                 return redirect("core:request-refund")
+

@@ -43,6 +43,7 @@ class Item(models.Model):
     slug = models.SlugField()
     description = models.TextField()
     image = models.ImageField()
+    idSearch = models.IntegerField(null=True)
 
     def __str__(self):
         return self.title
@@ -81,6 +82,7 @@ class OrderItem(models.Model):
 
     def get_amount_saved(self):
         return self.get_total_item_price() - self.get_total_discount_item_price()
+
 
     def get_final_price(self):
         if self.item.discount_price:

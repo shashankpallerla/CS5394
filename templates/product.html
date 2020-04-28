@@ -18,9 +18,11 @@
 
       <!--Grid column-->
       <div class="col-md-6 mb-4">
-
+        
         <!--Content-->
         <div class="p-4">
+
+          <p class="lead">{{ object.title }}</p>
 
           <div class="mb-3">
             <a href="">
@@ -40,9 +42,9 @@
           </p>
 
           <p class="lead font-weight-bold">Description</p>
-
-          <p>{{ object.description }}</p>
-
+          
+          <p>{{ object.description | safe }}</p>
+          
           {% comment %} <form class="d-flex justify-content-left">
             <!-- Default input -->
             <input type="number" value="1" aria-label="Search" class="form-control" style="width: 100px">
@@ -77,11 +79,7 @@
       <!--Grid column-->
       <div class="col-md-6 text-center">
 
-        <h4 class="my-4 h4">Additional information</h4>
-
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus suscipit modi sapiente illo soluta odit
-          voluptates,
-          quibusdam officia. Neque quibusdam quas a quis porro? Molestias illo neque eum in laborum.</p>
+        <h4 class="my-4 h4">Related Items</h4>
 
       </div>
       <!--Grid column-->
@@ -92,29 +90,54 @@
     <!--Grid row-->
     <div class="row wow fadeIn">
 
-      <!--Grid column-->
-      <div class="col-lg-4 col-md-12 mb-4">
+      <section class="text-center mb-4">
 
-        <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/11.jpg" class="img-fluid" alt="">
+        <div class="row wow fadeIn">
 
-      </div>
-      <!--Grid column-->
+          {% for item in object_list %}
+          <div class="col-lg-3 col-md-6 mb-4">
 
-      <!--Grid column-->
-      <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card">
 
-        <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/12.jpg" class="img-fluid" alt="">
+              <div class="view overlay">
+                {% comment %} <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Vertical/12.jpg" class="card-img-top" {% endcomment %}
+                <img src="{{ item.image.url }}" class="card-img-top">
+                <a href="{{ item.get_absolute_url }}">
+                  <div class="mask rgba-white-slight"></div>
+                </a>
+              </div>
 
-      </div>
-      <!--Grid column-->
+              <div class="card-body text-center">
+                <a href="" class="grey-text">
+                  <h5>{{ item.get_category_display }}</h5>
+                </a>
+                <h5>
+                  <strong>
+                    <a href="{{ item.get_absolute_url }}" class="dark-grey-text">{{ item.title }}
+                      <span class="badge badge-pill {{ item.get_label_display }}-color">NEW</span>
+                    </a>
+                  </strong>
+                </h5>
 
-      <!--Grid column-->
-      <div class="col-lg-4 col-md-6 mb-4">
+                <h4 class="font-weight-bold blue-text">
+                  <strong>$
+                  {% if item.discount_price %}
+                  {{ item.discount_price }}
+                  {% else %}
+                  {{ item.price }}
+                  {% endif %}
+                  </strong>
+                </h4>
 
-        <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/13.jpg" class="img-fluid" alt="">
+              </div>
 
-      </div>
-      <!--Grid column-->
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
+
+      </section>
 
     </div>
     <!--Grid row-->
