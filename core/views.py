@@ -590,6 +590,21 @@ class SearchView(ListView):
 
         return context
 
+
+class CategoryView(ListView):
+    model = Item
+    paginate_by = 8
+    template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)    
+
+        # Add in a QuerySet of all the books
+        context['object_list'] = Item.objects.filter(category=self.request.GET.get('c'))
+        
+        return context
+
 class RequestRefundView(View):
     def get(self, *args, **kwargs):
         form = RefundForm()
